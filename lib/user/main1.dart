@@ -1,17 +1,57 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:login/auth/register.dart';
 import 'package:login/user/pass.dart';
-import 'package:login/google.dart';
 import 'package:login/user/user_dashboard.dart';
 import 'package:login/user/user_register.dart';
 import 'package:login/worker_or_admin.dart';
+// Import the AuthService class
 
 void main() => runApp(const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: UserLogin(),
     ));
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class UserLogin extends StatefulWidget {
+  const UserLogin({super.key});
+
+  @override
+  State<UserLogin> createState() => _UserLoginState();
+}
+
+class _UserLoginState extends State<UserLogin> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  Future<void> loginUser() async {
+    try {
+      User? user = await _authService.signInUserWithEmailAndPassword(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (user != null) {
+        // Handle successful login
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Dashboard(),
+          ),
+        );
+      } else {
+        // Handle failed login
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login failed')),
+        );
+      }
+    } catch (e) {
+      // Handle error during login
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +88,19 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                        child: Container(
-                            margin: const EdgeInsets.only(top: 50),
-                            child: const Center(
-                                child: Text("Login",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 40)))))
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 50),
+                        child: const Center(
+                          child: Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 40,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -66,6 +113,7 @@ class HomePage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         hintText: "Email or Phone number",
                         hintStyle: const TextStyle(
@@ -84,6 +132,7 @@ class HomePage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextField(
+                      controller: _passwordController,
                       decoration: InputDecoration(
                         hintText: "Password",
                         hintStyle: const TextStyle(
@@ -120,14 +169,7 @@ class HomePage extends StatelessWidget {
                   color: const Color.fromARGB(255, 107, 100, 237),
                 ),
                 child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Dashboard(),
-                      ),
-                    );
-                  },
+                  onPressed: loginUser,
                   child: const Text(
                     "Login",
                     style: TextStyle(
@@ -190,24 +232,6 @@ class HomePage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(50),
                   color: const Color.fromARGB(255, 107, 100, 237),
                 ),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const google(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Login using Google",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
               ),
               Positioned(
                 width: 780, // Set a specific width for the container
@@ -229,5 +253,12 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

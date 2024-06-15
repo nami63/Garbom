@@ -76,7 +76,7 @@ class _SuccRegState extends State<Succreg> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const HomePage()),
+                            builder: (context) => const UserLogin()),
                       );
                     },
                     child: const Text(

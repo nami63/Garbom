@@ -1,16 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:login/auth/register.dart';
 import 'package:login/user/main1.dart';
 import 'package:login/user/successfully_registerd.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // ignore: camel_case_types
 class userreg extends StatefulWidget {
-  const userreg({super.key, Key? key3});
+  const userreg({super.key});
 
   @override
   State<userreg> createState() => _UserRegState();
 }
 
 class _UserRegState extends State<userreg> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _pinCodeController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final AuthService _authService = AuthService();
+
+  void _registerUser() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Passwords do not match")),
+      );
+      return;
+    }
+
+    User? user = await _authService.registerWithEmailAndPassword(
+      _nameController.text,
+      _phoneNumberController.text,
+      _emailController.text,
+      _addressController.text,
+      _stateController.text,
+      _pinCodeController.text,
+      _passwordController.text,
+    );
+
+    if (user != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("User registered successfully")),
+      );
+      _nameController.clear();
+      _phoneNumberController.clear();
+      _emailController.clear();
+      _addressController.clear();
+      _stateController.clear();
+      _pinCodeController.clear();
+      _passwordController.clear();
+      _confirmPasswordController.clear();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Succreg()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Registration failed")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,21 +117,23 @@ class _UserRegState extends State<userreg> {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildTextField("Name"),
+              _buildTextField("Name", _nameController),
               const SizedBox(height: 20), // Increased spacing
-              _buildTextField("Phone Number"),
+              _buildTextField("Phone Number", _phoneNumberController),
               const SizedBox(height: 20), // Increased spacing
-              _buildTextField("Email"),
+              _buildTextField("Email", _emailController),
               const SizedBox(height: 20), // Increased spacing
-              _buildTextField("Address"),
+              _buildTextField("Address", _addressController),
               const SizedBox(height: 20), // Increased spacing
-              _buildTextField("State"),
+              _buildTextField("State", _stateController),
               const SizedBox(height: 20), // Increased spacing
-              _buildTextField("Pin Code"),
+              _buildTextField("Pin Code", _pinCodeController),
               const SizedBox(height: 20), // Increased spacing
-              _buildTextField("Password", obscureText: true),
+              _buildTextField("Password", _passwordController,
+                  obscureText: true),
               const SizedBox(height: 20), // Increased spacing
-              _buildTextField("Confirm Password", obscureText: true),
+              _buildTextField("Confirm Password", _confirmPasswordController,
+                  obscureText: true),
               const SizedBox(height: 20), // Increased spacing
 
               const SizedBox(height: 20),
@@ -89,12 +145,7 @@ class _UserRegState extends State<userreg> {
                   color: const Color.fromARGB(255, 107, 100, 237),
                 ),
                 child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Succreg()),
-                    );
-                  },
+                  onPressed: _registerUser,
                   child: const Center(
                     child: Text(
                       "Register",
@@ -119,7 +170,8 @@ class _UserRegState extends State<userreg> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
+                      MaterialPageRoute(
+                          builder: (context) => const UserLogin()),
                     );
                   },
                   child: const Center(
@@ -157,10 +209,12 @@ class _UserRegState extends State<userreg> {
     );
   }
 
-  Widget _buildTextField(String hintText, {bool obscureText = false}) {
+  Widget _buildTextField(String hintText, TextEditingController controller,
+      {bool obscureText = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: TextField(
+        controller: controller,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.white),

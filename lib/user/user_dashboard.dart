@@ -50,7 +50,8 @@ class _DashboardState extends State<Dashboard> {
                   case 'Logout':
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
+                      MaterialPageRoute(
+                          builder: (context) => const UserLogin()),
                     );
                     break;
                 }

@@ -1,22 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:login/firebase_options.dart';
 import 'package:login/user/main1.dart'; // Ensure this import is correct and necessary
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (kIsWeb) {
-    await Firebase.initializeApp(
-        options: const FirebaseOptions(
-      apiKey: "AIzaSyARG17B9hjGhPSJ09hHhL24ukWdXIUrvo0",
-      appId: "1:893469158738:web:e8a17bc29abb4ee98a5e8b",
-      messagingSenderId: "893469158738",
-      projectId: "st-project-f6fc1",
-    ));
-  }
-  await Firebase.initializeApp();
-  runApp(const MyApp());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -87,7 +80,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const HomePage(),
+                      builder: (context) => const UserLogin(),
                     ),
                   );
                 },
