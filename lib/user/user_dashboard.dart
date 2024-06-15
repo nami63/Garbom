@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dash_board_user/profile.dart';
 import 'package:login/user/main1.dart';
 
 class Dashboard extends StatefulWidget {
@@ -182,15 +183,6 @@ class PricePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(child: Text('Price Page'));
-  }
-}
-
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Profile Page'));
   }
 }
 

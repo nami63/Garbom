@@ -16,12 +16,14 @@ class AuthService {
     String password,
   ) async {
     try {
+      // Create a new user with email and password
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       User? user = result.user;
 
+      // If user creation is successful, save additional user info in Firestore
       if (user != null) {
         await _firestore.collection('users').doc(user.uid).set({
           'name': name,
@@ -31,12 +33,49 @@ class AuthService {
           'state': state,
           'pinCode': pinCode,
           'role': 'user',
+          'createdAt':
+              FieldValue.serverTimestamp(), // Optional: track creation time
         });
       }
+
       return user;
-    } catch (error) {
-      print(error);
+    } catch (e) {
+      // Log and handle different types of exceptions
+      if (e is FirebaseAuthException) {
+        // Handle FirebaseAuth specific exceptions
+        print('FirebaseAuthException: ${e.message}');
+      } else if (e is FirebaseException) {
+        // Handle Firestore specific exceptions
+        print('FirebaseException: ${e.message}');
+      } else {
+        // Handle generic exceptions
+        print('Exception: $e');
+      }
+
       return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUserData(String uid) async {
+    try {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        return userDoc.data() as Map<String, dynamic>?;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<void> updateUserData(String uid, Map<String, dynamic> userData) async {
+    try {
+      await _firestore.collection('users').doc(uid).update(userData);
+    } catch (e) {
+      print('Error updating user data: $e');
     }
   }
 
