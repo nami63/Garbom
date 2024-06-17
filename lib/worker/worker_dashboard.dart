@@ -117,7 +117,7 @@ class log extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const workerlog()),
+            MaterialPageRoute(builder: (context) => const WorkerLog()),
           );
         },
         child: const Text('Logout'),

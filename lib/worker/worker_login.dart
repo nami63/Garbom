@@ -1,53 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Assuming auth_service.dart is the correct path
-import 'package:login/auth/register.dart';
-import 'package:login/worker/worker_dashboard.dart';
-import 'package:login/worker/workerpass.dart';
+import 'package:login/admin/adminworker.dart';
+import 'package:login/auth/adminlogin.dart';
 import 'package:login/user/main1.dart';
 
-// ignore: camel_case_types
-class workerlog extends StatefulWidget {
-  const workerlog({super.key});
+class WorkerLog extends StatefulWidget {
+  const WorkerLog({super.key});
 
   @override
-  State<workerlog> createState() => _workerlogState();
+  State<WorkerLog> createState() => _WorkerLogState();
 }
 
-// ignore: camel_case_types
-class _workerlogState extends State<workerlog> {
+class _WorkerLogState extends State<WorkerLog> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
-
-  Future<void> workerlog() async {
-    try {
-      User? worker = await _authService.signInWorkerWithEmailAndPassword(
-        _emailController.text,
-        _passwordController.text,
-      );
-
-      if (worker != null) {
-        // Handle successful login
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const workerdash(),
-          ),
-        );
-      } else {
-        // Handle failed login
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed')),
-        );
-      }
-    } catch (e) {
-      // Handle error during login
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
-  }
-
+  final AdminAuth _adminAuth = AdminAuth();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,7 +113,7 @@ class _workerlogState extends State<workerlog> {
               TextButton(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const WPass()),
+                  MaterialPageRoute(builder: (context) => WorkerPage()),
                 ),
                 child: const Text(
                   "Forgot Password?",
@@ -162,7 +128,13 @@ class _workerlogState extends State<workerlog> {
                   color: const Color.fromARGB(255, 107, 100, 237),
                 ),
                 child: TextButton(
-                  onPressed: () => workerlog(),
+                  onPressed: () {
+                    _adminAuth.signInWorker(
+                      context,
+                      _emailController.text.trim(),
+                      _passwordController.text.trim(),
+                    );
+                  },
                   child: const Text(
                     "Login",
                     style: TextStyle(

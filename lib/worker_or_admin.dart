@@ -44,7 +44,7 @@ class _woraState extends State<wora> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const workerlog(),
+                              builder: (context) => const WorkerLog(),
                             ),
                           );
                         },
