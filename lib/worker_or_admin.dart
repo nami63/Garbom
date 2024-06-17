@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:login/admin/admin_login.dart';
 import 'package:login/user/main1.dart';
 import 'package:login/worker/worker_login.dart';
+// Ensure this import points to the correct path for your AuthServiceadmin class
 
 // ignore: camel_case_types
 class wora extends StatefulWidget {
@@ -43,7 +44,8 @@ class _woraState extends State<wora> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const workerlog()),
+                              builder: (context) => const workerlog(),
+                            ),
                           );
                         },
                         child: const Center(
@@ -67,11 +69,12 @@ class _woraState extends State<wora> {
                         color: const Color.fromARGB(255, 107, 100, 237),
                       ),
                       child: TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const adlog()),
+                              builder: (context) => const AdLog(),
+                            ),
                           );
                         },
                         child: const Center(
@@ -99,7 +102,8 @@ class _woraState extends State<wora> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const UserLogin()),
+                              builder: (context) => const UserLogin(),
+                            ),
                           );
                         },
                         child: const Center(

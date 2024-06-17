@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:login/user/main1.dart';
-import 'package:login/google.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Assuming auth_service.dart is the correct path
+import 'package:login/auth/register.dart';
 import 'package:login/worker/worker_dashboard.dart';
 import 'package:login/worker/workerpass.dart';
+import 'package:login/user/main1.dart';
 
 // ignore: camel_case_types
 class workerlog extends StatefulWidget {
@@ -14,6 +15,39 @@ class workerlog extends StatefulWidget {
 
 // ignore: camel_case_types
 class _workerlogState extends State<workerlog> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  Future<void> workerlog() async {
+    try {
+      User? worker = await _authService.signInWorkerWithEmailAndPassword(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (worker != null) {
+        // Handle successful login
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const workerdash(),
+          ),
+        );
+      } else {
+        // Handle failed login
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login failed')),
+        );
+      }
+    } catch (e) {
+      // Handle error during login
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,26 +83,32 @@ class _workerlogState extends State<workerlog> {
                       ),
                     ),
                     Positioned(
-                        child: Container(
-                            margin: const EdgeInsets.only(top: 50),
-                            child: const Center(
-                                child: Text(" Worker Login",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 40)))))
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 50),
+                        child: const Center(
+                          child: Text(
+                            "Worker Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 40,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
-                        hintText: "Email or Phone number",
+                        hintText: "Email ",
                         hintStyle: const TextStyle(
                           color: Color.fromARGB(255, 227, 218, 234),
                         ),
@@ -85,6 +125,7 @@ class _workerlogState extends State<workerlog> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextField(
+                      controller: _passwordController,
                       decoration: InputDecoration(
                         hintText: "Password",
                         hintStyle: const TextStyle(
@@ -121,14 +162,7 @@ class _workerlogState extends State<workerlog> {
                   color: const Color.fromARGB(255, 107, 100, 237),
                 ),
                 child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const workerdash(),
-                      ),
-                    );
-                  },
+                  onPressed: () => workerlog(),
                   child: const Text(
                     "Login",
                     style: TextStyle(
@@ -139,33 +173,13 @@ class _workerlogState extends State<workerlog> {
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               Container(
                 height: 50,
                 margin: const EdgeInsets.symmetric(horizontal: 50),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50),
                   color: const Color.fromARGB(255, 107, 100, 237),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const google(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Login using Google",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -196,18 +210,13 @@ class _workerlogState extends State<workerlog> {
                   ),
                 ),
               ),
-              Positioned(
+              Container(
                 width: 180, // Set a specific width for the container
                 height: 200,
-                bottom: 40,
-                right: 10,
-                child: Container(
-                  width: 220, // Set a specific width for the container
-                  height: 300, // Set a specific height for the container
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/worker.gif'),
-                    ),
+                margin: const EdgeInsets.only(top: 40),
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/worker.gif'),
                   ),
                 ),
               ),

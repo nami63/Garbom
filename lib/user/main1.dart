@@ -115,7 +115,7 @@ class _UserLoginState extends State<UserLogin> {
                     child: TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        hintText: "Email or Phone number",
+                        hintText: "Email ",
                         hintStyle: const TextStyle(
                           color: Color.fromARGB(255, 227, 218, 234),
                         ),

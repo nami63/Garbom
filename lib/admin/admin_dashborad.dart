@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:login/admin/admin_login.dart';
+import 'package:login/admin/adminworker.dart';
+import 'package:login/admin/customer.dart';
+import 'package:login/admin/profile.dart';
 
 // ignore: camel_case_types
 class addash extends StatefulWidget {
@@ -14,8 +17,8 @@ class _AddashState extends State<addash> {
 
   final List<Widget> _pages = [
     const hop(),
-    const WorkerPage(),
-    const CustomerPage(),
+    WorkerPage(),
+    UserPage(),
     const ProfilePage(),
     const LogoutPage(),
   ];
@@ -77,30 +80,12 @@ class hop extends StatelessWidget {
   }
 }
 
-class WorkerPage extends StatelessWidget {
-  const WorkerPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Workers Page'));
-  }
-}
-
 class CustomerPage extends StatelessWidget {
   const CustomerPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const Center(child: Text('All Customer Details'));
-  }
-}
-
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Profile'));
   }
 }
 
@@ -114,7 +99,7 @@ class LogoutPage extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const adlog()),
+            MaterialPageRoute(builder: (context) => const AdLog()),
           );
         },
         child: const Text('Logout'),

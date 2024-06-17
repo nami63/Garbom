@@ -78,6 +78,7 @@ class AuthService {
       print('Error updating user data: $e');
     }
   }
+  
 
   // Register a new worker with email and password
   Future<User?> registerWorkerWithEmailAndPassword(

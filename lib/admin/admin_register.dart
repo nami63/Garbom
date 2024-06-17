@@ -114,7 +114,7 @@ class _adregState extends State<adreg> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const adlog()),
+                      MaterialPageRoute(builder: (context) => const AdLog()),
                     );
                   },
                   child: const Center(
