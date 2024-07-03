@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login/dash_board_user/home.dart';
 import '../dash_board_user/profile.dart';
 import 'package:login/user/main1.dart';
 
@@ -114,14 +115,6 @@ class _DashboardState extends State<Dashboard> {
 }
 
 // Define the different pages
-class Home extends StatelessWidget {
-  const Home({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Home Page'));
-  }
-}
 
 class AboutUsPage extends StatelessWidget {
   const AboutUsPage({super.key});

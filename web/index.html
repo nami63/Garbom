@@ -38,6 +38,7 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdk4UX0CwDxSmH2p92_B9DtR5jQdRHqjQ"></script>
 </head>
 <body>
   <script>
@@ -54,6 +55,11 @@
         }
       });
     });
+  </script>
+  <script>
+    if (!window.google || !window.google.maps) {
+      console.error("Google Maps JavaScript API not loaded correctly");
+    }
   </script>
 </body>
 </html>
