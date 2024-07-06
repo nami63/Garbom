@@ -14,6 +14,7 @@ class _WorkerLogState extends State<WorkerLog> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AdminAuth _adminAuth = AdminAuth();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +75,7 @@ class _WorkerLogState extends State<WorkerLog> {
                     child: TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        hintText: "Email ",
+                        hintText: "Email",
                         hintStyle: const TextStyle(
                           color: Color.fromARGB(255, 227, 218, 234),
                         ),
@@ -145,15 +146,6 @@ class _WorkerLogState extends State<WorkerLog> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
-              Container(
-                height: 50,
-                margin: const EdgeInsets.symmetric(horizontal: 50),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: const Color.fromARGB(255, 107, 100, 237),
-                ),
-              ),
               const SizedBox(height: 20),
               Container(
                 height: 50,
@@ -167,17 +159,16 @@ class _WorkerLogState extends State<WorkerLog> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const UserLogin()),
+                        builder: (context) => const UserLogin(),
+                      ),
                     );
                   },
-                  child: const Center(
-                    child: Text(
-                      "User Login",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  child: const Text(
+                    "User Login",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),

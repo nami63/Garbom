@@ -6,10 +6,33 @@ class UserPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Users'),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(19.0),
+              child: Text(
+                'User List',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 251, 251, 252),
+                ),
+              ),
+            ),
+            Expanded(
+              child: UserList(),
+            ),
+          ],
+        ),
       ),
-      body: UserList(),
     );
   }
 }
@@ -62,7 +85,7 @@ class UserCard extends StatelessWidget {
           );
         },
         trailing: Switch(
-          value: data['isWorker'] ?? true,
+          value: data['isWorker'] ?? false,
           onChanged: (value) {
             _updateWorkerStatus(context, documentId, value, data);
           },
@@ -81,15 +104,15 @@ class UserCard extends StatelessWidget {
         SnackBar(content: Text('Worker status updated!')),
       );
 
-      // Add or remove user from the "works" collection
+      // Add or remove user from the "workers" collection
       if (isWorker) {
-        // If user is marked as a worker, add them to the "works" collection
+        // If user is marked as a worker, add them to the "workers" collection
         FirebaseFirestore.instance
             .collection('workers')
             .doc(documentId)
             .set(data);
       } else {
-        // If user is not a worker, remove them from the "works" collection
+        // If user is not a worker, remove them from the "workers" collection
         FirebaseFirestore.instance
             .collection('workers')
             .doc(documentId)

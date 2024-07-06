@@ -5,11 +5,12 @@ import 'package:login/admin/admincontroll.dart';
 
 class WorkerPage extends StatefulWidget {
   @override
-  _AdminWorkersPageState createState() => _AdminWorkersPageState();
+  _WorkerPageState createState() => _WorkerPageState();
 }
 
-class _AdminWorkersPageState extends State<WorkerPage> {
-  final Workers _workers = Workers();
+class _WorkerPageState extends State<WorkerPage> {
+  final Workers _workers =
+      Workers(); // Assuming Workers class handles data fetching
 
   List<Map<String, dynamic>> _workersList = [];
 
@@ -27,12 +28,10 @@ class _AdminWorkersPageState extends State<WorkerPage> {
   }
 
   void _addWorker(BuildContext context) async {
-    // Navigate to the add worker form
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => AddWorkerPage()),
     ).then((_) {
-      // Refresh the list of workers when returning from the form
       _loadWorkers();
     });
   }
@@ -52,22 +51,6 @@ class _AdminWorkersPageState extends State<WorkerPage> {
               ],
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Update'),
-              onPressed: () {
-                Navigator.pop(context);
-                _updateWorker(context, worker);
-              },
-            ),
-            TextButton(
-              child: Text('Delete'),
-              onPressed: () {
-                Navigator.pop(context);
-                _deleteWorker(context, worker);
-              },
-            ),
-          ],
         );
       },
     );
@@ -84,24 +67,60 @@ class _AdminWorkersPageState extends State<WorkerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Admin Workers')),
-      body: ListView.builder(
-        itemCount: _workersList.length,
-        itemBuilder: (context, index) {
-          final worker = _workersList[index];
-          return GestureDetector(
-            onTap: () => _showWorkerDetails(context, worker),
-            child: Container(
-              margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8.0),
+      body: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Workers',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 107, 100, 237),
+                  ),
+                ),
               ),
-              child: Text(worker['name']),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _workersList.length,
+                  itemBuilder: (context, index) {
+                    final worker = _workersList[index];
+                    return GestureDetector(
+                      onTap: () => _showWorkerDetails(context, worker),
+                      child: Container(
+                        margin: EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Text(worker['name']),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            width: 450,
+            height: 300,
+            bottom: 40,
+            left: 5,
+            child: Container(
+              width: 720, // Set a specific width for the container
+              height: 500, // Set a specific height for the container
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/worker.gif'),
+                ),
+              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addWorker(context),

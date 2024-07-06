@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:login/admin/admin_register.dart' as admin_register;
+
 import 'package:login/auth/adminlogin.dart';
+import 'package:login/user/main1.dart';
 
 class AdLog extends StatefulWidget {
   const AdLog({super.key});
@@ -146,22 +147,41 @@ class _AdLogState extends State<AdLog> {
                 ),
               ),
               const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const admin_register.adreg()),
-                  );
-                },
-                child: const Center(
-                  child: Text(
-                    "Register",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              Container(
+                height: 50,
+                margin: const EdgeInsets.symmetric(horizontal: 50),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: const Color.fromARGB(255, 107, 100, 237),
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const UserLogin()),
+                    );
+                  },
+                  child: const Center(
+                    child: Text(
+                      "User Login",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 180, // Set a specific width for the container
+                height: 200,
+                margin: const EdgeInsets.only(top: 40),
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/admin.gif'),
                   ),
                 ),
               ),

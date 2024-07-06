@@ -225,14 +225,6 @@ class _UserLoginState extends State<UserLogin> {
               const SizedBox(
                 height: 30,
               ),
-              Container(
-                height: 50,
-                margin: const EdgeInsets.symmetric(horizontal: 50),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: const Color.fromARGB(255, 107, 100, 237),
-                ),
-              ),
               Positioned(
                 width: 780, // Set a specific width for the container
                 height: 1000,

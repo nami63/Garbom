@@ -129,21 +129,12 @@ class TaskListPage extends StatelessWidget {
     FirebaseFirestore.instance.collection('tasks').doc(taskId).update({
       'completed': true,
     }).then((value) {
-      // Update user's task completion status in 'users' collection
-      FirebaseFirestore.instance.collection('users').doc(taskId).update({
-        'task_completed': true,
-      }).then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Task marked as complete')),
-        );
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update user task status')),
-        );
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Task marked as complete')),
+      );
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to mark task as complete')),
+        SnackBar(content: Text('Failed to mark task as complete: $error')),
       );
     });
   }
@@ -152,21 +143,12 @@ class TaskListPage extends StatelessWidget {
     FirebaseFirestore.instance.collection('tasks').doc(taskId).update({
       'completed': false,
     }).then((value) {
-      // Update user's task completion status in 'users' collection
-      FirebaseFirestore.instance.collection('users').doc(taskId).update({
-        'task_completed': false,
-      }).then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Task marked as not complete')),
-        );
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update user task status')),
-        );
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Task marked as not complete')),
+      );
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to mark task as not complete')),
+        SnackBar(content: Text('Failed to mark task as not complete: $error')),
       );
     });
   }
