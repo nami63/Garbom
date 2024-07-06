@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:login/dash_board_user/Payment.dart';
+import 'package:login/dash_board_user/WasteType.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
 }
 
 class UserHome extends StatefulWidget {
-  const UserHome({super.key});
+  const UserHome({Key? key}) : super(key: key);
 
   @override
   _UserHomeState createState() => _UserHomeState();
@@ -27,12 +28,12 @@ class UserHome extends StatefulWidget {
 
 class _UserHomeState extends State<UserHome> {
   final List<Map<String, dynamic>> wasteTypes = [
-    {'name': 'Organic', 'icon': Icons.eco, 'amount': '5 /-'},
-    {'name': 'Plastic', 'icon': Icons.local_drink, 'amount': '8 /-'},
-    {'name': 'Paper', 'icon': Icons.description, 'amount': '5 /-'},
-    {'name': 'Metal', 'icon': Icons.build, 'amount': '20 /-'},
-    {'name': 'Glass', 'icon': Icons.wine_bar, 'amount': '30 /-'},
-    {'name': 'E-waste', 'icon': Icons.devices, 'amount': '40 /-'},
+    {'name': 'Organic', 'icon': Icons.eco, 'amount': 2.0},
+    {'name': 'Plastic', 'icon': Icons.local_drink, 'amount': 4.0},
+    {'name': 'Paper', 'icon': Icons.description, 'amount': 2.0},
+    {'name': 'Metal', 'icon': Icons.build, 'amount': 8.0},
+    {'name': 'Glass', 'icon': Icons.wine_bar, 'amount': 10.0},
+    {'name': 'E-waste', 'icon': Icons.devices, 'amount': 12.0},
   ];
 
   final List<Map<String, dynamic>> selectedWasteTypes = [];
@@ -41,8 +42,9 @@ class _UserHomeState extends State<UserHome> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              PaymentAndAddressScreen(selectedWasteTypes: selectedWasteTypes)),
+        builder: (context) =>
+            PaymentAndAddressScreen(selectedWasteTypes: selectedWasteTypes),
+      ),
     ).then((value) {
       if (value != null) {
         setState(() {
@@ -77,13 +79,6 @@ class _UserHomeState extends State<UserHome> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.location_on),
-                          onPressed: () {
-                            // Add your onPressed code here!
-                            print('Location button pressed');
-                          },
-                        ),
                         const Text(
                           'Hello Name',
                           style: TextStyle(
@@ -155,6 +150,7 @@ class _UserHomeState extends State<UserHome> {
         onPressed: () => _navigateToPaymentAndAddress(context),
         child: const Icon(Icons.payment),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -162,16 +158,16 @@ class _UserHomeState extends State<UserHome> {
 class WasteTypeCard extends StatelessWidget {
   final String name;
   final IconData icon;
-  final String amount;
+  final double amount;
   final VoidCallback onTap;
 
   const WasteTypeCard({
-    super.key,
     required this.name,
     required this.icon,
     required this.amount,
     required this.onTap,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +201,7 @@ class WasteTypeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Amount: $amount',
+                  'Amount: ₹${amount.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 14,
                   ),

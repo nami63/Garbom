@@ -1,10 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:login/auth/paymentsevice.dart';
+import 'package:login/dash_board_user/Paymentpage.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:login/dash_board_user/map.dart';
 import 'package:login/dash_board_user/wastetype.dart';
+import 'package:login/dash_board_user/Paymentpage.dart'; // Import the PaymentPage
 
 class PaymentAndAddressScreen extends StatefulWidget {
   final List<Map<String, dynamic>> selectedWasteTypes;
@@ -32,10 +34,57 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  void loadUserData() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.uid)
+          .get();
+
+      if (snapshot.exists) {
+        Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+        addressController.text = userData['address'] ?? '';
+        stateController.text = userData['state'] ?? '';
+        pinCodeController.text = userData['pinCode'] ?? '';
+        mapController.text = userData['map'] ?? '';
+        pickupDataController.text = userData['pickupData'] ?? '';
+      }
+    } catch (error) {
+      print('Error loading user data: $error');
+    }
+  }
+
   final PaymentService _paymentService = PaymentService();
+
+  double _calculateTotalAmount() {
+    double total = 0.0;
+    for (var wasteType in widget.selectedWasteTypes) {
+      total += wasteType['amount'] ?? 0.0;
+    }
+    return total;
+  }
+
+  double _calculateTotalTax(double totalAmount) {
+    // Assuming 18% tax
+    return totalAmount * 0.18;
+  }
+
+  double _calculateFinalAmount(double totalAmount, double totalTax) {
+    return totalAmount + totalTax;
+  }
 
   @override
   Widget build(BuildContext context) {
+    double totalAmount = _calculateTotalAmount();
+    double totalTax = _calculateTotalTax(totalAmount);
+    double finalAmount = _calculateFinalAmount(totalAmount, totalTax);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Proceed to Payment & Address'),
@@ -83,6 +132,25 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                         },
                       );
                     },
+                  ),
+                  const SizedBox(height: 16.0),
+                  Center(
+                    child: Text(
+                      'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Total Tax: ₹${totalTax.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Final Amount: ₹${finalAmount.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
                   ),
                   const SizedBox(height: 16.0),
                   Text(
@@ -142,15 +210,23 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                   const SizedBox(height: 16.0),
                   _buildCalendar(), // Add calendar widget
                   const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Handle payment logic here
-                      // After handling payment, update the user's data in Firestore
-                      await updateUserData();
-                      await _paymentService.setSessionTrue();
-                      await _paymentService.updatePaymentStatusAndMoveDetails();
-                    },
-                    child: const Text('Proceed to Payment'),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Handle payment logic here
+                        // After handling payment, update the user's data in Firestore
+                        await updateUserData();
+                        // Proceed to PaymentPage to choose payment method
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PaymentPage(finalAmount: finalAmount),
+                          ),
+                        );
+                      },
+                      child: const Text('Proceed to Payment'),
+                    ),
                   ),
                 ],
               ),
@@ -214,5 +290,29 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
       print('Error updating user data: $error');
       // Handle error
     }
+  }
+}
+
+class WasteTypeTile extends StatelessWidget {
+  final Map<String, dynamic> wasteType;
+  final VoidCallback onRemove;
+
+  const WasteTypeTile({
+    required this.wasteType,
+    required this.onRemove,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(wasteType['name'] ?? ''),
+      subtitle:
+          Text('Amount: ₹${wasteType['amount']?.toStringAsFixed(2) ?? ''}'),
+      trailing: IconButton(
+        icon: const Icon(Icons.remove_circle),
+        onPressed: onRemove,
+      ),
+    );
   }
 }

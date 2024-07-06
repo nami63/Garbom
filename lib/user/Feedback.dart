@@ -39,9 +39,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
               title: const Text(
                 'Feedback',
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
               backgroundColor: const Color.fromARGB(255, 107, 100, 237),
             ),
@@ -59,17 +59,19 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           const Text(
                             'Select an option:',
                             style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Cursive',
-                            ),
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Cursive',
+                                color: Colors.white),
                           ),
                           const SizedBox(height: 20),
                           ListTile(
                             title: const Text(
                               'Bad',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             ),
                             leading: Radio<String>(
                               value: 'Bad',
@@ -87,7 +89,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             title: const Text(
                               'Average',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             ),
                             leading: Radio<String>(
                               value: 'Average',
@@ -105,7 +109,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             title: const Text(
                               'Good',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             ),
                             leading: Radio<String>(
                               value: 'Good',
@@ -123,7 +129,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           const Text(
                             'Rate the app:',
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
                           ),
                           Slider(
                             value: _rating,
