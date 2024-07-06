@@ -1,174 +1,219 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:login/dash_board_user/map.dart';
-import 'package:login/dash_board_user/profile.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:login/dash_board_user/Payment.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    home: Home(),
-  ));
+  runApp(const MyApp());
 }
 
-class Home extends StatelessWidget {
-  const Home({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: UserHome(),
+    );
+  }
+}
+
+class UserHome extends StatefulWidget {
+  const UserHome({super.key});
+
+  @override
+  _UserHomeState createState() => _UserHomeState();
+}
+
+class _UserHomeState extends State<UserHome> {
+  final List<Map<String, dynamic>> wasteTypes = [
+    {'name': 'Organic', 'icon': Icons.eco, 'amount': '5 /-'},
+    {'name': 'Plastic', 'icon': Icons.local_drink, 'amount': '8 /-'},
+    {'name': 'Paper', 'icon': Icons.description, 'amount': '5 /-'},
+    {'name': 'Metal', 'icon': Icons.build, 'amount': '20 /-'},
+    {'name': 'Glass', 'icon': Icons.wine_bar, 'amount': '30 /-'},
+    {'name': 'E-waste', 'icon': Icons.devices, 'amount': '40 /-'},
+  ];
+
+  final List<Map<String, dynamic>> selectedWasteTypes = [];
+
+  void _navigateToPaymentAndAddress(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              PaymentAndAddressScreen(selectedWasteTypes: selectedWasteTypes)),
+    ).then((value) {
+      if (value != null) {
+        setState(() {
+          selectedWasteTypes.clear();
+          selectedWasteTypes.addAll(value);
+        });
+      }
+    });
+  }
+
+  void _addToSelected(Map<String, dynamic> wasteType) {
+    setState(() {
+      selectedWasteTypes.add(wasteType);
+    });
+    _navigateToPaymentAndAddress(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Garbage Management'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
+      body: SafeArea(
+        child: Column(
           children: [
-            GarbageCard(title: 'Plastic Waste', icon: Icons.delete),
-            GarbageCard(title: 'Organic Waste', icon: Icons.nature),
-            GarbageCard(title: 'Electronic Waste', icon: Icons.devices),
+            Container(
+              color:
+                  const Color.fromARGB(255, 159, 154, 252), // Light blue color
+              child: Column(
+                children: [
+                  const SizedBox(height: 50),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.location_on),
+                          onPressed: () {
+                            // Add your onPressed code here!
+                            print('Location button pressed');
+                          },
+                        ),
+                        const Text(
+                          'Hello Name',
+                          style: TextStyle(
+                            fontSize: 28, // Increased font size
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 48), // Placeholder for symmetry
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: AnimatedTextKit(
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          'Effective management of garbage is crucial for a sustainable environment. Let’s work together to keep our surroundings clean and green.',
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontFamily:
+                                'Bradley Hand ITC', // Changed font family
+                          ),
+                          speed: const Duration(milliseconds: 100),
+                        ),
+                      ],
+                      totalRepeatCount: 1,
+                      pause: const Duration(milliseconds: 1000),
+                      displayFullTextOnTap: true,
+                      stopPauseOnTap: true,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                color: const Color.fromARGB(
+                    255, 184, 181, 247), // Grey background color
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(10.0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                    ),
+                    itemCount: wasteTypes.length,
+                    itemBuilder: (ctx, index) {
+                      return WasteTypeCard(
+                        name: wasteTypes[index]['name'],
+                        icon: wasteTypes[index]['icon'],
+                        amount: wasteTypes[index]['amount'],
+                        onTap: () => _addToSelected(wasteTypes[index]),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _navigateToPaymentAndAddress(context),
+        child: const Icon(Icons.payment),
       ),
     );
   }
 }
 
-class GarbageCard extends StatelessWidget {
-  final String title;
+class WasteTypeCard extends StatelessWidget {
+  final String name;
   final IconData icon;
+  final String amount;
+  final VoidCallback onTap;
 
-  const GarbageCard({
-    required this.title,
-    required this.icon,
+  const WasteTypeCard({
     super.key,
+    required this.name,
+    required this.icon,
+    required this.amount,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PaymentAndAddressScreen(title: title),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class PaymentAndAddressScreen extends StatefulWidget {
-  final String title;
-
-  const PaymentAndAddressScreen({required this.title, super.key});
-
-  @override
-  _PaymentAndAddressScreenState createState() =>
-      _PaymentAndAddressScreenState();
-}
-
-class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
-  User? user = FirebaseAuth.instance.currentUser;
-  TextEditingController addressController = TextEditingController();
-  TextEditingController stateController = TextEditingController();
-  TextEditingController pinCodeController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.title} - Payment & Address'),
-      ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future:
-            FirebaseFirestore.instance.collection('users').doc(user?.uid).get(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error fetching data'));
-          }
-
-          if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('No address found'));
-          }
-
-          final userData = snapshot.data!.data() as Map<String, dynamic>;
-          addressController.text = userData['address'] ?? '';
-          stateController.text = userData['state'] ?? '';
-          pinCodeController.text = userData['pinCode'] ?? '';
-
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
+    return AspectRatio(
+      aspectRatio: 1,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          elevation: 5,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Confirm Address for ${widget.title}',
-                    style: Theme.of(context).textTheme.headline6),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: addressController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Address',
+                Icon(
+                  icon,
+                  size: 50,
+                  color: const Color.fromARGB(
+                      255, 107, 100, 237), // Changed icon color to blue
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: stateController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'State',
+                const SizedBox(height: 10),
+                Text(
+                  'Amount: $amount',
+                  style: const TextStyle(
+                    fontSize: 14,
                   ),
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: pinCodeController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Pin Code',
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MapScreen()),
-                    );
-                  },
-                  icon: const Icon(Icons.location_on),
-                  label: const Text('Set Live Location'),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // Handle payment logic here
-                  },
-                  child: const Text('Proceed to Payment'),
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:login/dash_board_user/home.dart';
+import 'package:login/user/AboutUs.dart';
+import 'package:login/user/Feedback.dart';
+import 'package:login/user/help.dart';
 import '../dash_board_user/profile.dart';
 import 'package:login/user/main1.dart';
 
@@ -14,12 +17,65 @@ class _DashboardState extends State<Dashboard> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const Home(),
+    const UserHome(),
     const AboutUsPage(),
     const ComingSoonPage(),
-    const PricePage(),
     const ProfilePage(),
   ];
+
+  void _showPopupMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height /
+              2, // Half of the screen height
+          color: Colors.blue, // Blue background color
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.feedback, color: Colors.white),
+                title: const Text('Feedback',
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FeedbackPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.help, color: Colors.white),
+                title:
+                    const Text('Help', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HelpPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.white),
+                title:
+                    const Text('Logout', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const UserLogin()),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,49 +86,9 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: const Color.fromARGB(255, 107, 100, 237),
         toolbarHeight: 50,
         actions: [
-          PopupMenuButton<String>(
-            onSelected: (String result) {
-              setState(() {
-                // Handle the selected menu item
-                // You can navigate to different pages or perform other actions
-                switch (result) {
-                  case 'Settings':
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const SettingsPage()),
-                    );
-                    break;
-                  case 'Help':
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HelpPage()),
-                    );
-                    break;
-                  case 'Logout':
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const UserLogin()),
-                    );
-                    break;
-                }
-              });
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'Settings',
-                child: Text('Settings'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Help',
-                child: Text('Help'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Logout',
-                child: Text('Logout'),
-              ),
-            ],
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () => _showPopupMenu(context),
           ),
         ],
       ),
@@ -99,10 +115,6 @@ class _DashboardState extends State<Dashboard> {
             icon: Icon(Icons.inventory_sharp),
           ),
           BottomNavigationBarItem(
-            label: 'Price',
-            icon: Icon(Icons.money),
-          ),
-          BottomNavigationBarItem(
             label: 'Profile',
             icon: Icon(Icons.person),
           ),
@@ -115,15 +127,6 @@ class _DashboardState extends State<Dashboard> {
 }
 
 // Define the different pages
-
-class AboutUsPage extends StatelessWidget {
-  const AboutUsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('About Us Page'));
-  }
-}
 
 class ComingSoonPage extends StatelessWidget {
   const ComingSoonPage({super.key});
@@ -167,32 +170,5 @@ class ComingSoonPage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class PricePage extends StatelessWidget {
-  const PricePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Price Page'));
-  }
-}
-
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Settting'));
-  }
-}
-
-class HelpPage extends StatelessWidget {
-  const HelpPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Home Page'));
   }
 }

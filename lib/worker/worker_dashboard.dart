@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login/worker/workerHome.dart';
 import 'package:login/worker/worker_login.dart';
 
 // ignore: camel_case_types
@@ -14,7 +15,7 @@ class _workerdashState extends State<workerdash> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const page(),
+    WorkerHomePage(),
     const Customer(),
     const Loc(),
     const Price(),
@@ -69,14 +70,6 @@ class _workerdashState extends State<workerdash> {
 
 // Define the different pages
 // ignore: camel_case_types
-class page extends StatelessWidget {
-  const page({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Home Page'));
-  }
-}
 
 class Customer extends StatelessWidget {
   const Customer({super.key});
