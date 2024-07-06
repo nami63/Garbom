@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:login/auth/paymentsevice.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:login/dash_board_user/map.dart';
 import 'package:login/dash_board_user/wastetype.dart';
@@ -30,6 +31,8 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
+  final PaymentService _paymentService = PaymentService();
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +118,7 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MapScreen()),
+                        MaterialPageRoute(builder: (context) => LocationPage()),
                       ).then((value) {
                         if (value != null) {
                           setState(() {
@@ -140,10 +143,12 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                   _buildCalendar(), // Add calendar widget
                   const SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       // Handle payment logic here
                       // After handling payment, update the user's data in Firestore
-                      updateUserData();
+                      await updateUserData();
+                      await _paymentService.setSessionTrue();
+                      await _paymentService.updatePaymentStatusAndMoveDetails();
                     },
                     child: const Text('Proceed to Payment'),
                   ),
@@ -179,7 +184,7 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
     );
   }
 
-  void updateUserData() async {
+  Future<void> updateUserData() async {
     try {
       // Serialize the selectedWasteTypes data to Firestore-compatible format
       List<Map<String, dynamic>> serializedWasteTypes =
@@ -200,11 +205,11 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
         'wasteTypes': serializedWasteTypes,
         'pickupData': pickupDataController.text,
         'map': mapController.text,
+        'session': false, // Initially set to false
         'createdAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      // Navigate to payment screen after data is updated
-      Navigator.pushReplacementNamed(context, '/payment_screen');
+      print('User data updated successfully');
     } catch (error) {
       print('Error updating user data: $error');
       // Handle error

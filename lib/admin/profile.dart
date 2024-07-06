@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:login/auth/register.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -13,6 +14,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final AuthService _authService = AuthService();
   User? user = FirebaseAuth.instance.currentUser;
   Map<String, dynamic>? userData;
+  bool? taskCompleted;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -35,6 +37,8 @@ class _ProfilePageState extends State<ProfilePage> {
         _addressController.text = userData!['address'];
         _stateController.text = userData!['state'];
         _pinCodeController.text = userData!['pinCode'];
+        taskCompleted =
+            userData!['task_completed']; // Fetch task completion status
       }
       setState(() {});
     }
@@ -59,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (userData == null) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -96,6 +100,15 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: updateUserData,
               child: const Text('Update Profile'),
             ),
+            if (taskCompleted != null)
+              Text(
+                taskCompleted! ? 'Task Completed' : 'Task Not Completed',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: taskCompleted! ? Colors.green : Colors.red,
+                ),
+              ),
           ],
         ),
       ),

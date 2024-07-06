@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:login/worker/ViewTask.dart';
 
 class WorkerHomePage extends StatefulWidget {
   const WorkerHomePage({Key? key}) : super(key: key);
@@ -63,8 +64,11 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                     SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                        // Example action: navigate to task list or perform an action
-                        Navigator.pushNamed(context, '/task_list');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TaskListPage()),
+                        );
                       },
                       child: Text('View Tasks'),
                     ),
