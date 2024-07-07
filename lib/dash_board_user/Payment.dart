@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:login/auth/paymentsevice.dart';
 import 'package:login/dash_board_user/Paymentpage.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:login/dash_board_user/map.dart';
 import 'package:login/dash_board_user/wastetype.dart';
+import 'package:intl/intl.dart'; // for date formatting
 
 class PaymentAndAddressScreen extends StatefulWidget {
   final List<Map<String, dynamic>> selectedWasteTypes;
@@ -27,12 +29,13 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
   TextEditingController pinCodeController = TextEditingController();
   TextEditingController mapController = TextEditingController();
   TextEditingController pickupDataController = TextEditingController();
-  TextEditingController kgController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
+  String _paymentMethod = ''; // Track payment method
 
   @override
   void initState() {
@@ -59,6 +62,8 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
       print('Error loading user data: $error');
     }
   }
+
+  final PaymentService _paymentService = PaymentService();
 
   double _calculateTotalAmount() {
     double total = 0.0;
@@ -184,7 +189,9 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LocationPage()),
+                        MaterialPageRoute(
+                          builder: (context) => LocationPage(),
+                        ),
                       ).then((value) {
                         if (value != null) {
                           setState(() {
@@ -211,86 +218,27 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                   _buildCalendar(), // Add calendar widget
                   const SizedBox(height: 16.0),
                   Center(
-                    child: TextField(
-                      controller: kgController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Enter total kg',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        String kgText = kgController.text.trim();
-                        if (kgText.isNotEmpty) {
-                          double kg = double.tryParse(kgText) ?? 0.0;
-                          finalAmount *=
-                              kg; // Adjust finalAmount based on kg input
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text('Total Amount'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                        'Total Amount: ₹${finalAmount.toStringAsFixed(2)}'),
-                                    Text(
-                                        'Total Tax: ₹${totalTax.toStringAsFixed(2)}'),
-                                    Text(
-                                        'Final Amount: ₹${_calculateFinalAmount(finalAmount, totalTax).toStringAsFixed(2)}'),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text('Error'),
-                                content:
-                                    Text('Please enter a valid value for Kg.'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
-                      },
-                      child: const Text('Calculate Total'),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Center(
                     child: ElevatedButton(
                       onPressed: () async {
+                        // Handle payment logic here
+                        _paymentMethod =
+                            'Credit Card'; // Example payment method
+
+                        // After handling payment, update the user's data in Firestore
                         await updateUserData();
+                        await _paymentService.setSessionTrue();
+                        await _paymentService
+                            .updatePaymentStatusAndMoveDetails();
                         // Proceed to PaymentPage to choose payment method
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                PaymentPage(finalAmount: finalAmount),
+                            builder: (context) => PaymentPage(
+                              finalAmount: finalAmount,
+                              userName: user?.displayName ?? '',
+                              selectedWasteTypes: widget.selectedWasteTypes,
+                              paymentDateTime: DateTime.now(),
+                            ),
                           ),
                         );
                       },
@@ -343,16 +291,19 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
         });
       }).toList();
 
-      await FirebaseFirestore.instance.collection('users').doc(user?.uid).set({
-        'address': addressController.text,
-        'state': stateController.text,
-        'pinCode': pinCodeController.text,
-        'wasteTypes': serializedWasteTypes,
-        'pickupData': pickupDataController.text,
-        'map': mapController.text,
-        'session': false, // Initially set to false
-        'createdAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('users').doc(user?.uid).set(
+        {
+          'address': addressController.text,
+          'state': stateController.text,
+          'pinCode': pinCodeController.text,
+          'wasteTypes': serializedWasteTypes,
+          'pickupData': pickupDataController.text,
+          'map': mapController.text,
+          'session': false, // Initially set to false
+          'createdAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
 
       print('User data updated successfully');
     } catch (error) {

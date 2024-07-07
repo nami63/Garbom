@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:login/user/user_dashboard.dart';
 
 class PaymentPage extends StatefulWidget {
   final double finalAmount; // Total amount to be paid
+  final String userName; // User's name
+  final List<Map<String, dynamic>> selectedWasteTypes; // Selected waste types
+  final DateTime paymentDateTime; // Date and time of payment
 
   const PaymentPage({
     required this.finalAmount,
+    required this.userName,
+    required this.selectedWasteTypes,
+    required this.paymentDateTime,
     Key? key,
   }) : super(key: key);
 
@@ -14,7 +21,7 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
-  String? _selectedPaymentMethod;
+  String _selectedPaymentMethod = 'Cash on Delivery';
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +47,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 groupValue: _selectedPaymentMethod,
                 onChanged: (value) {
                   setState(() {
-                    _selectedPaymentMethod = value;
+                    _selectedPaymentMethod = value!;
                   });
                 },
               ),
@@ -52,7 +59,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 groupValue: _selectedPaymentMethod,
                 onChanged: (value) {
                   setState(() {
-                    _selectedPaymentMethod = value;
+                    _selectedPaymentMethod = value!;
                   });
                 },
               ),
@@ -64,7 +71,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 groupValue: _selectedPaymentMethod,
                 onChanged: (value) {
                   setState(() {
-                    _selectedPaymentMethod = value;
+                    _selectedPaymentMethod = value!;
                   });
                 },
               ),
@@ -76,7 +83,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 groupValue: _selectedPaymentMethod,
                 onChanged: (value) {
                   setState(() {
-                    _selectedPaymentMethod = value;
+                    _selectedPaymentMethod = value!;
                   });
                 },
               ),
@@ -88,38 +95,40 @@ class _PaymentPageState extends State<PaymentPage> {
                 groupValue: _selectedPaymentMethod,
                 onChanged: (value) {
                   setState(() {
-                    _selectedPaymentMethod = value;
+                    _selectedPaymentMethod = value!;
                   });
                 },
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _selectedPaymentMethod != null
-                  ? () {
-                      // Proceed to payment logic here
-                      // For simplicity, navigate to payment successful screen
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaymentSuccessfulPage(),
-                        ),
-                      );
-                    }
-                  : null,
+              onPressed: () {
+                // Navigate to payment successful screen
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentSuccessfulPage(
+                      finalAmount: widget.finalAmount,
+                      userName: widget.userName,
+                      selectedWasteTypes: widget.selectedWasteTypes,
+                      paymentMethod: _selectedPaymentMethod,
+                      paymentDateTime: widget.paymentDateTime,
+                    ),
+                  ),
+                );
+              },
               child: const Text('Proceed to Pay'),
             ),
-            Positioned(
-              width: 780, // Set a specific width for the container
-              height: 1000,
-              bottom: 40,
-              right: 0,
+            const SizedBox(height: 20),
+            // Payment illustration
+            Center(
               child: Container(
-                width: 520, // Set a specific width for the container
-                height: 300, // Set a specific height for the container
+                width: 320, // Set a specific width for the container
+                height: 250, // Set a specific height for the container
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/payment.gif'),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -130,8 +139,24 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 }
+// for date formatting
 
 class PaymentSuccessfulPage extends StatelessWidget {
+  final double finalAmount; // Total amount paid
+  final String userName; // User's name
+  final List<Map<String, dynamic>> selectedWasteTypes; // Selected waste types
+  final String paymentMethod; // Selected payment method
+  final DateTime paymentDateTime; // Date and time of payment
+
+  const PaymentSuccessfulPage({
+    required this.finalAmount,
+    required this.userName,
+    required this.selectedWasteTypes,
+    required this.paymentMethod,
+    required this.paymentDateTime,
+    Key? key,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,27 +164,54 @@ class PaymentSuccessfulPage extends StatelessWidget {
         title: const Text('Payment Successful'),
         backgroundColor: const Color.fromARGB(255, 107, 100, 237),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle, size: 80, color: Colors.green),
-            const SizedBox(height: 20),
-            const Text(
-              'Payment Successful!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.lightBlue.shade50,
+              borderRadius: BorderRadius.circular(12.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Dashboard()),
-                );
-              },
-              child: const Text('Back to Home'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, size: 80, color: Colors.green),
+                const SizedBox(height: 20),
+                const Text(
+                  'Payment Successful!',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                // Display receipt information
+                const SizedBox(height: 8),
+                Text('Payment Method: $paymentMethod'),
+                const SizedBox(height: 8),
+                Text('Payment Amount: ₹${finalAmount.toStringAsFixed(2)}'),
+                const SizedBox(height: 8),
+                Text(
+                    'Payment Date & Time: ${DateFormat('yyyy-MM-dd – kk:mm').format(paymentDateTime)}'),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Dashboard()),
+                    );
+                  },
+                  child: const Text('Back to Home'),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -61,7 +61,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.lightBlue[100],
+                          color: const Color.fromARGB(255, 179, 198, 252),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: ListTile(

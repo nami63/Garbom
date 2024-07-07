@@ -3,7 +3,6 @@ import 'package:login/worker/workerHome.dart';
 import 'package:login/worker/worker_login.dart'; // Ensure this is the correct import for WorkerLog
 import 'package:login/worker/worker_history.dart'; // Corrected import
 import 'package:login/worker/worker_earnings.dart'; // Corrected import
-import 'package:login/worker/worker_task_completion.dart';
 
 class WorkerDashboard extends StatefulWidget {
   const WorkerDashboard({Key? key})
@@ -19,8 +18,7 @@ class _WorkerDashboardState extends State<WorkerDashboard> {
   final List<Widget> _pages = [
     WorkerHomePage(),
     HistoryPage(),
-    EarningsPage(),
-    TaskListPage(),
+    TaskCountPage(),
   ];
 
   void _showLogoutDialog(BuildContext context) {
@@ -56,7 +54,8 @@ class _WorkerDashboardState extends State<WorkerDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("GarboManage"),
+        automaticallyImplyLeading: false,
+        title: const Text("Dashboard"),
         backgroundColor: const Color.fromARGB(255, 107, 100, 237),
         toolbarHeight: 50,
       ),
@@ -65,7 +64,7 @@ class _WorkerDashboardState extends State<WorkerDashboard> {
         backgroundColor: const Color.fromARGB(255, 107, 100, 237),
         currentIndex: _currentIndex,
         onTap: (int newIndex) {
-          if (newIndex == 4) {
+          if (newIndex == 3) {
             _showLogoutDialog(context); // Show logout confirmation dialog
           } else {
             setState(() {
@@ -85,10 +84,6 @@ class _WorkerDashboardState extends State<WorkerDashboard> {
           BottomNavigationBarItem(
             label: 'Earnings',
             icon: Icon(Icons.currency_rupee),
-          ),
-          BottomNavigationBarItem(
-            label: 'TaskList',
-            icon: Icon(Icons.task),
           ),
           BottomNavigationBarItem(
             label: 'Logout',

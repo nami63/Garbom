@@ -18,29 +18,45 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            StreamBuilder<DocumentSnapshot>(
-              stream:
-                  _firestore.collection('workers').doc(user?.uid).snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-                if (!snapshot.hasData) {
-                  return Text('No data found');
-                }
+      body: Container(
+        color:
+            Colors.grey.shade300, // Grey background color for the whole screen
+        child: Center(
+          child: StreamBuilder<DocumentSnapshot>(
+            stream: _firestore.collection('workers').doc(user?.uid).snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (!snapshot.hasData) {
+                return Text('No data found');
+              }
 
-                final workerData =
-                    snapshot.data!.data() as Map<String, dynamic>;
-                return Column(
+              final workerData = snapshot.data!.data() as Map<String, dynamic>;
+
+              return Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 131, 135, 255),
+                  borderRadius: BorderRadius.circular(12.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          Color.fromARGB(255, 214, 213, 213).withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Welcome, ${workerData['name']}!',
-                      style: TextStyle(fontSize: 24),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 20),
                     Text(
@@ -68,12 +84,11 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                       },
                       child: Text('View Tasks'),
                     ),
-                    // Add more buttons or functionality as needed
                   ],
-                );
-              },
-            ),
-          ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
