@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:login/auth/paymentsevice.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:login/dash_board_user/Paymentpage.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:login/dash_board_user/map.dart';
 import 'package:login/dash_board_user/wastetype.dart';
-import 'package:login/dash_board_user/Paymentpage.dart'; // Import the PaymentPage
 
 class PaymentAndAddressScreen extends StatefulWidget {
   final List<Map<String, dynamic>> selectedWasteTypes;
@@ -28,6 +27,7 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
   TextEditingController pinCodeController = TextEditingController();
   TextEditingController mapController = TextEditingController();
   TextEditingController pickupDataController = TextEditingController();
+  TextEditingController kgController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -59,8 +59,6 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
       print('Error loading user data: $error');
     }
   }
-
-  final PaymentService _paymentService = PaymentService();
 
   double _calculateTotalAmount() {
     double total = 0.0;
@@ -190,7 +188,9 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                       ).then((value) {
                         if (value != null) {
                           setState(() {
-                            mapController.text = value; // Update map data
+                            LatLng location = value as LatLng;
+                            mapController.text =
+                                '${location.latitude}, ${location.longitude}';
                           });
                         }
                       });
@@ -211,10 +211,79 @@ class _PaymentAndAddressScreenState extends State<PaymentAndAddressScreen> {
                   _buildCalendar(), // Add calendar widget
                   const SizedBox(height: 16.0),
                   Center(
+                    child: TextField(
+                      controller: kgController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Enter total kg',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        String kgText = kgController.text.trim();
+                        if (kgText.isNotEmpty) {
+                          double kg = double.tryParse(kgText) ?? 0.0;
+                          finalAmount *=
+                              kg; // Adjust finalAmount based on kg input
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Total Amount'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                        'Total Amount: ₹${finalAmount.toStringAsFixed(2)}'),
+                                    Text(
+                                        'Total Tax: ₹${totalTax.toStringAsFixed(2)}'),
+                                    Text(
+                                        'Final Amount: ₹${_calculateFinalAmount(finalAmount, totalTax).toStringAsFixed(2)}'),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Error'),
+                                content:
+                                    Text('Please enter a valid value for Kg.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
+                      child: const Text('Calculate Total'),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  Center(
                     child: ElevatedButton(
                       onPressed: () async {
-                        // Handle payment logic here
-                        // After handling payment, update the user's data in Firestore
                         await updateUserData();
                         // Proceed to PaymentPage to choose payment method
                         Navigator.push(

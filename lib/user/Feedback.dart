@@ -1,6 +1,8 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
@@ -14,12 +16,32 @@ class _FeedbackPageState extends State<FeedbackPage> {
   String _selectedOption = 'Bad';
   double _rating = 1.0;
 
-  void _submitFeedback() {
+  void _submitFeedback() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Submit feedback to the backend or local storage
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Feedback submitted successfully')),
-      );
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .set({
+            'feedbackOption': _selectedOption,
+            'rating': _rating,
+          }, SetOptions(merge: true));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Feedback submitted successfully')),
+          );
+        } catch (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to submit feedback: $error')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No user is signed in')),
+        );
+      }
     }
   }
 
@@ -39,9 +61,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
               title: const Text(
                 'Feedback',
                 style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               backgroundColor: const Color.fromARGB(255, 107, 100, 237),
             ),
@@ -59,79 +81,20 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           const Text(
                             'Select an option:',
                             style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Cursive',
-                                color: Colors.white),
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Cursive',
+                            ),
                           ),
                           const SizedBox(height: 20),
-                          ListTile(
-                            title: const Text(
-                              'Bad',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                            leading: Radio<String>(
-                              value: 'Bad',
-                              groupValue: _selectedOption,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedOption = value!;
-                                  _rating =
-                                      1.0; // Set rating to 1.0 when 'Bad' is selected
-                                });
-                              },
-                            ),
-                          ),
-                          ListTile(
-                            title: const Text(
-                              'Average',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                            leading: Radio<String>(
-                              value: 'Average',
-                              groupValue: _selectedOption,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedOption = value!;
-                                  _rating =
-                                      3.0; // Set rating to 3.0 when 'Average' is selected
-                                });
-                              },
-                            ),
-                          ),
-                          ListTile(
-                            title: const Text(
-                              'Good',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                            leading: Radio<String>(
-                              value: 'Good',
-                              groupValue: _selectedOption,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedOption = value!;
-                                  _rating =
-                                      5.0; // Set rating to 5.0 when 'Good' is selected
-                                });
-                              },
-                            ),
-                          ),
+                          _buildRadioOption('Bad', 1.0),
+                          _buildRadioOption('Average', 3.0),
+                          _buildRadioOption('Good', 5.0),
                           const SizedBox(height: 20),
                           const Text(
                             'Rate the app:',
                             style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Slider(
                             value: _rating,
@@ -159,6 +122,28 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRadioOption(String label, double rating) {
+    return ListTile(
+      title: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      leading: Radio<String>(
+        value: label,
+        groupValue: _selectedOption,
+        onChanged: (value) {
+          setState(() {
+            _selectedOption = value!;
+            _rating = rating;
+          });
+        },
       ),
     );
   }

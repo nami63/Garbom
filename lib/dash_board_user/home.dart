@@ -28,12 +28,12 @@ class UserHome extends StatefulWidget {
 
 class _UserHomeState extends State<UserHome> {
   final List<Map<String, dynamic>> wasteTypes = [
-    {'name': 'Organic', 'icon': Icons.eco, 'amount': 2.0},
-    {'name': 'Plastic', 'icon': Icons.local_drink, 'amount': 4.0},
-    {'name': 'Paper', 'icon': Icons.description, 'amount': 2.0},
-    {'name': 'Metal', 'icon': Icons.build, 'amount': 8.0},
-    {'name': 'Glass', 'icon': Icons.wine_bar, 'amount': 10.0},
-    {'name': 'E-waste', 'icon': Icons.devices, 'amount': 12.0},
+    {'name': 'Organic', 'icon': Icons.eco, 'amount per Kg': 2.0},
+    {'name': 'Plastic', 'icon': Icons.local_drink, 'amount per Kg': 4.0},
+    {'name': 'Paper', 'icon': Icons.description, 'amount per Kg': 2.0},
+    {'name': 'Metal', 'icon': Icons.build, 'amount per Kg': 8.0},
+    {'name': 'Glass', 'icon': Icons.wine_bar, 'amount per Kg': 10.0},
+    {'name': 'E-waste', 'icon': Icons.devices, 'amount per Kg': 12.0},
   ];
 
   final List<Map<String, dynamic>> selectedWasteTypes = [];
@@ -57,7 +57,12 @@ class _UserHomeState extends State<UserHome> {
 
   void _addToSelected(Map<String, dynamic> wasteType) {
     setState(() {
-      selectedWasteTypes.add(wasteType);
+      selectedWasteTypes.add({
+        'name': wasteType['name'],
+        'icon': wasteType['icon'],
+        'amount':
+            wasteType['amount per Kg'] ?? 0.0, // Ensure amount is not null here
+      });
     });
     _navigateToPaymentAndAddress(context);
   }
@@ -117,8 +122,8 @@ class _UserHomeState extends State<UserHome> {
             ),
             Expanded(
               child: Container(
-                color: const Color.fromARGB(
-                    255, 184, 181, 247), // Grey background color
+                color:
+                    Color.fromRGBO(184, 181, 247, 1), // Grey background color
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: GridView.builder(
@@ -135,7 +140,8 @@ class _UserHomeState extends State<UserHome> {
                       return WasteTypeCard(
                         name: wasteTypes[index]['name'],
                         icon: wasteTypes[index]['icon'],
-                        amount: wasteTypes[index]['amount'],
+                        amount: wasteTypes[index]['amount per Kg'] ??
+                            0.0, // Ensure amount is not null here
                         onTap: () => _addToSelected(wasteTypes[index]),
                       );
                     },
@@ -201,7 +207,7 @@ class WasteTypeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Amount: ₹${amount.toStringAsFixed(2)}',
+                  'Amount: ₹${amount.toStringAsFixed(2)}', // Ensure amount is not null here
                   style: const TextStyle(
                     fontSize: 14,
                   ),

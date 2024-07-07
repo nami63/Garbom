@@ -1,155 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'task_details.dart';
+import 'task_model.dart' as task_model; // Alias for task_model.dart
+import 'worker_history.dart'; // Import the HistoryPage
 
-class TaskListPage extends StatelessWidget {
+class ViewTaskPage extends StatefulWidget {
+  const ViewTaskPage({Key? key}) : super(key: key);
+
+  @override
+  _ViewTaskPageState createState() => _ViewTaskPageState();
+}
+
+class _ViewTaskPageState extends State<ViewTaskPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<task_model.Task> _tasks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTasks();
+  }
+
+  Future<void> _fetchTasks() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await _firestore.collection('tasks').get();
+      List<task_model.Task> tasks = querySnapshot.docs.map((doc) {
+        return task_model.Task.fromFirestore(doc);
+      }).toList();
+
+      setState(() {
+        _tasks = tasks;
+      });
+    } catch (error) {
+      print('Error fetching tasks: $error');
+    }
+  }
+
+  void _moveToHistory(task_model.Task task) async {
+    try {
+      // Add task to history collection
+      await _firestore.collection('history').doc(task.taskId).set(task.toMap());
+
+      // Remove task from tasks collection
+      await _firestore.collection('tasks').doc(task.taskId).delete();
+
+      setState(() {
+        _tasks.remove(task);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Task marked as completed and moved to history'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (error) {
+      print('Error moving task to history: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Task List'),
+        title: Text('Tasks'),
+        backgroundColor: const Color.fromARGB(255, 107, 100, 237),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No tasks found'));
-          }
-
-          // Filter out completed tasks
-          var tasks = snapshot.data!.docs
-              .where((task) => task['completed'] != true)
-              .toList();
-
-          if (tasks.isEmpty) {
-            return Center(child: Text('No tasks found'));
-          }
-
-          return ListView.builder(
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              var task = tasks[index];
-              return _buildTaskCard(context, task);
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTaskCard(BuildContext context, DocumentSnapshot task) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 4,
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Address: ${task['address']}'),
-            SizedBox(height: 8),
-            Text('Created At: ${_formatTimestamp(task['createdAt'])}'),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _markTaskComplete(context, task.id);
+      body: _tasks.isEmpty
+          ? Center(child: Text('No tasks found'))
+          : ListView.builder(
+              itemCount: _tasks.length,
+              itemBuilder: (context, index) {
+                task_model.Task task = _tasks[index];
+                return ListTile(
+                  title: Text(task.name),
+                  subtitle: Text(task.address),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TaskDetailsPage(task: task),
+                      ),
+                    );
                   },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.green),
+                  trailing: IconButton(
+                    icon: Icon(Icons.check),
+                    onPressed: () {
+                      _moveToHistory(task);
+                    },
                   ),
-                  child: Text('Mark as Complete'),
-                ),
-                SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    _markTaskNotComplete(context, task.id);
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.red),
-                  ),
-                  child: Text('Mark as Not Complete'),
-                ),
-              ],
+                );
+              },
             ),
-          ],
-        ),
-      ),
     );
   }
+}
 
-  String _formatTimestamp(Timestamp timestamp) {
-    DateTime dateTime = timestamp.toDate();
-    return '${dateTime.day} ${_getMonth(dateTime.month)} ${dateTime.year} at ${_formatTime(dateTime)}';
-  }
-
-  String _getMonth(int month) {
-    switch (month) {
-      case 1:
-        return 'January';
-      case 2:
-        return 'February';
-      case 3:
-        return 'March';
-      case 4:
-        return 'April';
-      case 5:
-        return 'May';
-      case 6:
-        return 'June';
-      case 7:
-        return 'July';
-      case 8:
-        return 'August';
-      case 9:
-        return 'September';
-      case 10:
-        return 'October';
-      case 11:
-        return 'November';
-      case 12:
-        return 'December';
-      default:
-        return '';
-    }
-  }
-
-  String _formatTime(DateTime dateTime) {
-    String hour = dateTime.hour.toString().padLeft(2, '0');
-    String minute = dateTime.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
-
-  void _markTaskComplete(BuildContext context, String taskId) {
-    FirebaseFirestore.instance.collection('tasks').doc(taskId).update({
-      'completed': true,
-    }).then((value) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Task marked as complete')),
-      );
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to mark task as complete: $error')),
-      );
-    });
-  }
-
-  void _markTaskNotComplete(BuildContext context, String taskId) {
-    FirebaseFirestore.instance.collection('tasks').doc(taskId).update({
-      'completed': false,
-    }).then((value) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Task marked as not complete')),
-      );
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to mark task as not complete: $error')),
-      );
-    });
-  }
+void main() {
+  runApp(MaterialApp(
+    home: ViewTaskPage(),
+  ));
 }

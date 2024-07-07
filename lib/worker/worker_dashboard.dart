@@ -1,26 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:login/worker/workerHome.dart';
-import 'package:login/worker/worker_login.dart';
+import 'package:login/worker/worker_login.dart'; // Ensure this is the correct import for WorkerLog
+import 'package:login/worker/worker_history.dart'; // Corrected import
+import 'package:login/worker/worker_earnings.dart'; // Corrected import
+import 'package:login/worker/worker_task_completion.dart';
 
-// ignore: camel_case_types
-class workerdash extends StatefulWidget {
-  const workerdash({super.key});
+class WorkerDashboard extends StatefulWidget {
+  const WorkerDashboard({Key? key})
+      : super(key: key); // Fixed constructor syntax
 
   @override
-  State<workerdash> createState() => _workerdashState();
+  State<WorkerDashboard> createState() => _WorkerDashboardState();
 }
 
-// ignore: camel_case_types
-class _workerdashState extends State<workerdash> {
+class _WorkerDashboardState extends State<WorkerDashboard> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
     WorkerHomePage(),
-    const Customer(),
-    const Loc(),
-    const Price(),
-    const log(),
+    HistoryPage(),
+    EarningsPage(),
+    TaskListPage(),
   ];
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WorkerLog()),
+                );
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +65,13 @@ class _workerdashState extends State<workerdash> {
         backgroundColor: const Color.fromARGB(255, 107, 100, 237),
         currentIndex: _currentIndex,
         onTap: (int newIndex) {
-          setState(() {
-            _currentIndex = newIndex;
-          });
+          if (newIndex == 4) {
+            _showLogoutDialog(context); // Show logout confirmation dialog
+          } else {
+            setState(() {
+              _currentIndex = newIndex;
+            });
+          }
         },
         items: const [
           BottomNavigationBarItem(
@@ -45,75 +79,24 @@ class _workerdashState extends State<workerdash> {
             icon: Icon(Icons.home),
           ),
           BottomNavigationBarItem(
-            label: 'Customers',
-            icon: Icon(Icons.tv_outlined),
+            label: 'History',
+            icon: Icon(Icons.history),
           ),
           BottomNavigationBarItem(
-            label: 'Location',
-            icon: Icon(Icons.inventory_sharp),
+            label: 'Earnings',
+            icon: Icon(Icons.currency_rupee),
           ),
           BottomNavigationBarItem(
-            label: 'Price',
-            icon: Icon(Icons.money),
+            label: 'TaskList',
+            icon: Icon(Icons.task),
           ),
           BottomNavigationBarItem(
-            label: 'logout',
-            icon: Icon(Icons.person),
+            label: 'Logout',
+            icon: Icon(Icons.logout),
           ),
         ],
-        selectedItemColor: const Color.fromARGB(255, 107, 100, 237),
-        unselectedItemColor: Colors.grey,
-      ),
-    );
-  }
-}
-
-// Define the different pages
-// ignore: camel_case_types
-
-class Customer extends StatelessWidget {
-  const Customer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('About Us Page'));
-  }
-}
-
-class Loc extends StatelessWidget {
-  const Loc({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Coming Soon Page'));
-  }
-}
-
-class Price extends StatelessWidget {
-  const Price({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Price Page'));
-  }
-}
-
-// ignore: camel_case_types
-class log extends StatelessWidget {
-  const log({super.key});
-
-  @override
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const WorkerLog()),
-          );
-        },
-        child: const Text('Logout'),
+        selectedItemColor: Color.fromARGB(255, 221, 57, 186),
+        unselectedItemColor: Color.fromARGB(255, 87, 84, 238),
       ),
     );
   }

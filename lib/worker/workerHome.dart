@@ -18,10 +18,6 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Worker Home Page'),
-        backgroundColor: const Color.fromARGB(255, 107, 100, 237),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +63,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => TaskListPage()),
+                              builder: (context) => ViewTaskPage()),
                         );
                       },
                       child: Text('View Tasks'),

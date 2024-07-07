@@ -51,7 +51,7 @@ class AdminAuth {
           // Redirect to worker dashboard
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => workerdash()),
+            MaterialPageRoute(builder: (context) => WorkerDashboard()),
           );
         } else {
           // Show error message or redirect to user page

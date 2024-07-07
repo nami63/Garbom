@@ -54,18 +54,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
             controller: controller,
             children: [
               buildPage(
+                imagePath: 'assets/images/waste.gif',
+                text:
+                    'Cleaning alone is not enough. Effective waste disposal is now a necessity.',
+              ),
+              buildPage(
                 imagePath: 'assets/images/earth.gif',
                 text: 'Let us now work together to create a green world.',
               ),
               buildPage(
                 imagePath: 'assets/images/cleaning.gif',
                 text: 'Join us in this journey to keep the environment clean.',
-              ),
-              buildPage(
-                imagePath: 'assets/images/waste.gif',
-                text:
-                    'Cleaning alone is not enough. Effective waste disposal is now a necessity.',
-              ),
+              )
             ],
           ),
         ),

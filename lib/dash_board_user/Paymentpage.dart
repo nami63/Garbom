@@ -109,6 +109,21 @@ class _PaymentPageState extends State<PaymentPage> {
                   : null,
               child: const Text('Proceed to Pay'),
             ),
+            Positioned(
+              width: 780, // Set a specific width for the container
+              height: 1000,
+              bottom: 40,
+              right: 0,
+              child: Container(
+                width: 520, // Set a specific width for the container
+                height: 300, // Set a specific height for the container
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/payment.gif'),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
