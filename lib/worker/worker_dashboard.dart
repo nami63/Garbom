@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:login/worker/workerHome.dart';
-import 'package:login/worker/worker_login.dart'; // Ensure this is the correct import for WorkerLog
-import 'package:login/worker/worker_history.dart'; // Corrected import
-import 'package:login/worker/worker_earnings.dart'; // Corrected import
+import 'package:login/worker/worker_history.dart';
+import 'package:login/worker/worker_earnings.dart';
+import 'package:login/worker/worker_taskcompleted.dart';
+import 'package:login/worker/worker_login.dart'; // Assuming this is imported correctly
 
 class WorkerDashboard extends StatefulWidget {
   const WorkerDashboard({Key? key})
@@ -15,11 +16,18 @@ class WorkerDashboard extends StatefulWidget {
 class _WorkerDashboardState extends State<WorkerDashboard> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    WorkerHomePage(),
-    HistoryPage(),
-    TaskCountPage(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      WorkerHomePage(),
+      HistoryPage(),
+      EarningsPage(), // Pass workerEmail here
+      TaskCountPage(),
+    ];
+  }
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(
@@ -64,7 +72,7 @@ class _WorkerDashboardState extends State<WorkerDashboard> {
         backgroundColor: const Color.fromARGB(255, 107, 100, 237),
         currentIndex: _currentIndex,
         onTap: (int newIndex) {
-          if (newIndex == 3) {
+          if (newIndex == 4) {
             _showLogoutDialog(context); // Show logout confirmation dialog
           } else {
             setState(() {
@@ -86,12 +94,16 @@ class _WorkerDashboardState extends State<WorkerDashboard> {
             icon: Icon(Icons.currency_rupee),
           ),
           BottomNavigationBarItem(
+            label: 'Tasks',
+            icon: Icon(Icons.bike_scooter),
+          ),
+          BottomNavigationBarItem(
             label: 'Logout',
             icon: Icon(Icons.logout),
           ),
         ],
-        selectedItemColor: Color.fromARGB(255, 221, 57, 186),
-        unselectedItemColor: Color.fromARGB(255, 87, 84, 238),
+        selectedItemColor: Colors.pinkAccent, // Adjust as per your theme
+        unselectedItemColor: Colors.blueAccent, // Adjust as per your theme
       ),
     );
   }

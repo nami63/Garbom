@@ -1,42 +1,80 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 
-class TaskCountPage extends StatefulWidget {
-  const TaskCountPage({Key? key}) : super(key: key);
+class EarningsPage extends StatefulWidget {
+  const EarningsPage({Key? key}) : super(key: key);
 
   @override
-  _TaskCountPageState createState() => _TaskCountPageState();
+  _EarningsPageState createState() => _EarningsPageState();
 }
 
-class _TaskCountPageState extends State<TaskCountPage> {
+class _EarningsPageState extends State<EarningsPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  int completedTasks = 0;
+  double totalDeliveryBonus = 0.0; // Initialize with 0 bonus
+  final double baseWage = 500.0; // Set the base wage to 500
+  final double targetAmount = 1000.0; // Set the target amount to 1000
 
   @override
   void initState() {
     super.initState();
-    fetchCompletedTasks();
+    fetchTotalDeliveryBonus();
   }
 
-  void fetchCompletedTasks() async {
+  void fetchTotalDeliveryBonus() async {
     try {
       QuerySnapshot historySnapshot =
           await _firestore.collection('history').get();
+      double total = 0.0;
+
+      for (var doc in historySnapshot.docs) {
+        List<dynamic> wasteTypes = doc['wasteTypes'];
+        for (var wasteType in wasteTypes) {
+          double amount = wasteType['amount'] ?? 0.0;
+          total += amount * 0.30; // Calculate 30% of each amount
+        }
+      }
 
       setState(() {
-        completedTasks = historySnapshot.size;
+        totalDeliveryBonus = total;
+      });
+
+      // Update the worker's earnings in the Firebase collection
+      updateEarnings(totalDeliveryBonus);
+    } catch (error) {
+      print('Error fetching delivery bonus: $error');
+      // Handle error as needed
+    }
+  }
+
+  void updateEarnings(double totalDeliveryBonus) async {
+    try {
+      // Assuming you have the worker's document ID stored somewhere
+      String workerDocId =
+          'workerDocumentID'; // Replace with actual worker document ID
+
+      // Calculate the total earnings
+      double totalEarnings = baseWage + totalDeliveryBonus;
+
+      // Update the earnings in the worker's document
+      await _firestore.collection('earnings').doc(workerDocId).set({
+        'totalDeliveryBonus': totalDeliveryBonus,
+        'baseWage': baseWage,
+        'totalEarnings': totalEarnings,
       });
     } catch (error) {
-      print('Error fetching tasks from history: $error');
+      print('Error updating earnings: $error');
       // Handle error as needed
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Calculate percentage of completed tasks compared to target
-    double percentComplete = completedTasks / 10.0;
+    double totalEarnings =
+        baseWage + totalDeliveryBonus; // Calculate total earnings
+    double completedProportion = totalEarnings /
+        targetAmount; // Calculate the proportion of completed earnings
+    double remainingProportion = 1 - completedProportion;
 
     return Scaffold(
       body: Center(
@@ -44,22 +82,32 @@ class _TaskCountPageState extends State<TaskCountPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Completed Tasks: $completedTasks',
-              style: TextStyle(fontSize: 24),
+              'Earnings',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
-            // Semicircular progress indicator
-            CircularPercentIndicator(
-              radius: 120.0,
-              lineWidth: 15.0,
-              percent: percentComplete > 1.0 ? 1.0 : percentComplete,
-              center: Text(
-                '${(percentComplete * 100).toStringAsFixed(0)}%',
-                style: TextStyle(fontSize: 20),
+            SizedBox(
+              width: 200,
+              height: 200,
+              child: CustomPaint(
+                painter: SemiPieChartPainter(
+                  completedProportion: completedProportion,
+                  remainingProportion: remainingProportion,
+                ),
               ),
-              circularStrokeCap: CircularStrokeCap.round,
-              backgroundColor: Colors.grey[300]!,
-              progressColor: Colors.blue,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Total Delivery Bonus: ₹${totalDeliveryBonus.toStringAsFixed(2)}',
+              style: TextStyle(fontSize: 20),
+            ),
+            Text(
+              'Base Wage: ₹${baseWage.toStringAsFixed(2)}',
+              style: TextStyle(fontSize: 20),
+            ),
+            Text(
+              'Total Earnings: ₹${totalEarnings.toStringAsFixed(2)}',
+              style: TextStyle(fontSize: 20),
             ),
           ],
         ),
@@ -68,10 +116,61 @@ class _TaskCountPageState extends State<TaskCountPage> {
   }
 }
 
+class SemiPieChartPainter extends CustomPainter {
+  final double completedProportion;
+  final double remainingProportion;
+  final Color completedColor;
+  final Color remainingColor;
+
+  SemiPieChartPainter({
+    required this.completedProportion,
+    required this.remainingProportion,
+    this.completedColor = const Color.fromARGB(255, 114, 33, 243),
+    this.remainingColor = const Color.fromARGB(255, 234, 214, 250),
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    double radius = size.width / 2;
+    Offset center = Offset(size.width / 2, size.height);
+
+    // Draw completed segment
+    _drawSegment(
+        canvas, center, radius, 0, completedProportion * pi, completedColor);
+
+    // Draw remaining segment
+    _drawSegment(
+        canvas, center, radius, completedProportion * pi, pi, remainingColor);
+  }
+
+  void _drawSegment(Canvas canvas, Offset center, double radius,
+      double startAngle, double sweepAngle, Color color) {
+    Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = radius
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -startAngle,
+      -sweepAngle,
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
 void main() {
   runApp(MaterialApp(
-    title: 'Task Count Demo',
+    title: 'Earnings Demo',
     theme: ThemeData(primarySwatch: Colors.blue),
-    home: TaskCountPage(),
+    home: EarningsPage(),
+    debugShowCheckedModeBanner: false, // Disable debug banner
   ));
 }
